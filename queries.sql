@@ -64,3 +64,13 @@ select
 	group by age_category
 	order by age_category asc;
 
+select -- clientes e ingresos por mes
+	to_char (s.sale_date, 'YYYY-MM') as selling_month, -- convierte la fecha en formato año-mes
+	count (distinct s.customer_id) as total_customers, --cuenta los clientes diferentes
+	SUM (s.quantity * p.price) as income -- suma los ingresos generados por cliente
+	from sales s
+	inner join products p
+	on s.product_id = p.product_id
+	group by selling_month -- agrupa por mes
+	order by selling_month;
+
