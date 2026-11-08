@@ -51,4 +51,16 @@ select
     EXTRACT(ISODOW FROM s.sale_date) asc, --ordena por número de día de menor a mayor donde lunes es 1 y domingo es 7
     seller asc; --ordena alfabeticamente de menor a mayor (A-Z)
 
+-- age_groups.csv — Categorización de los clientes por rangos de edad
+select 
+	--Ordena los clientes por rangos de edad
+	case 
+		when age between 16 and 25 then '16-25'
+        when age between 26 and 40 then '26-40'
+        when age > 40 then '40+'
+	end as age_category,
+	COUNT (*) as age_count -- Cuenta la cantidad según el rango de edad
+	from customers
+	group by age_category
+	order by age_category asc;
 
