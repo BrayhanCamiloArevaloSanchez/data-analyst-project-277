@@ -51,7 +51,7 @@ select
     EXTRACT(ISODOW FROM s.sale_date) asc, --ordena por número de día de menor a mayor donde lunes es 1 y domingo es 7
     seller asc; --ordena alfabeticamente de menor a mayor (A-Z)
 
--- age_groups.csv — Categorización de los clientes por rangos de edad
+-- age_groups.csv — grupos de edad
 select 
 	--Ordena los clientes por rangos de edad
 	case 
@@ -64,7 +64,8 @@ select
 	group by age_category
 	order by age_category asc;
 
-select -- clientes e ingresos por mes
+-- customers_by_month.csv — clientes e ingresos por mes
+select
 	to_char (s.sale_date, 'YYYY-MM') as selling_month, -- convierte la fecha en formato año-mes
 	count (distinct s.customer_id) as total_customers, --cuenta los clientes diferentes
 	SUM (s.quantity * p.price) as income -- suma los ingresos generados por cliente
@@ -74,3 +75,33 @@ select -- clientes e ingresos por mes
 	group by selling_month -- agrupa por mes
 	order by selling_month;
 
+-- special_offer.csv — clientes con su primera compra promocional
+--CTE de primera compra
+with first_purchases as (
+    select
+        s.customer_id,
+        s.product_id,
+        s.sale_date,
+        s.sales_person_id,
+	--enumera las compras partiendo desde el id del cliente y ordenandolas de la primera a la última
+        row_number() over (
+            partition by s.customer_id
+            ORDER BY s.sale_date asc
+        ) as purchase_number
+    from sales s
+)
+	
+--Consulta principal
+select
+    concat (c.first_name, ' ', c.last_name) as customer,
+    fp.sale_date,
+    concat (e.first_name, ' ', e.last_name) as seller
+from first_purchases fp
+inner join customers c
+    on fp.customer_id = c.customer_id
+inner join products p
+    on fp.product_id = p.product_id
+inner join employees e
+    on fp.sales_person_id = e.employee_id
+where fp.purchase_number = 1 and p.price = 0 --filtra por la primera venta de cada cliente en donde el precio es 0
+order by customer;
