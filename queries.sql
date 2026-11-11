@@ -39,7 +39,7 @@ ORDER BY average_income ASC; --Ordena de menor a mayor por promedio de ventas
 --day_of_the_week_income.csv — resumen de ingresos por día de la semana
 select  
 	CONCAT (e.first_name, ' ', e.last_name) AS seller,
-	to_char(s.sale_date, 'TMDay') as day_of_week, --extrae el nombre de la día de la semana de la fecha
+	lower (to_char(s.sale_date, 'TMDay')) as day_of_week, --extrae el nombre de la día de la semana de la fecha
 	floor(SUM (p.price * s.quantity)) as income
 	from employees e
 	inner join sales s
@@ -66,13 +66,13 @@ select
 
 -- customers_by_month.csv — clientes e ingresos por mes
 select 
-	to_char (s.sale_date, 'YYYY-MM') as selling_month,
-	count (distinct s.customer_id) as total_customers,
-	floor (SUM (s.quantity * p.price)) as income
+	to_char (s.sale_date, 'YYYY-MM') as selling_month, -- Convierte la fecha en formato año-mes
+	count (distinct s.customer_id) as total_customers, --cuenta los clientes diferentes
+	floor (SUM (s.quantity * p.price)) as income -- determina la cantidad de ganancia generada
 	from sales s
 	inner join products p
 	on s.product_id = p.product_id
-	group by selling_month
+	group by selling_month agrupa por fecha
 	order by selling_month;
 
 -- special_offer.csv — clientes con su primera compra promocional
